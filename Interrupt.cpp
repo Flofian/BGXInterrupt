@@ -1,6 +1,6 @@
-#include "plugin_sdk/plugin_sdk.hpp"
+#include "../plugin_sdk/plugin_sdk.hpp"
 #include "Interrupt.h"
-namespace interrupt {
+namespace InterruptDB {
     std::map<std::string, TreeEntry*> menuMap;
     bool useSmallMenu = false;
     int boolMenuMinImportance = -1;
