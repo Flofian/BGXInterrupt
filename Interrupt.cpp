@@ -3,6 +3,7 @@
 namespace interrupt {
     std::map<std::string, TreeEntry*> menuMap;
     bool useSmallMenu = false;
+    int boolMenuMinImportance = -1;
     auto rbuffhashes = { buff_hash("LucianR"), buff_hash("SamiraR"), buff_hash("RyzeRChannel"), buff_hash("Gate"), buff_hash("warwickrsound") };  // I hate this, also buff times are wrong, maybe need to use onProcessSpellCast
     std::map<std::string, internalSpellData> channelTime = { // I cant get every Spell via spelldata->channeltime
         {"AkshanR", internalSpellData(0.5,2.5,2.5,0)},    // I will not do the calculations to find out how many he needs
@@ -83,22 +84,28 @@ namespace interrupt {
     void InitiateSlot(TreeTab* tab, game_object_script entity, spellslot slot, std::string name, std::string spellName, int defaultValue)
     {
         std::string key;
+        void* texture;
         switch (slot)
         {
         case spellslot::q:
             key = "Q";
+            texture = entity->get_spell(slot)->get_icon_texture();
             break;
         case spellslot::w:
             key = "W";
+            texture = entity->get_spell(slot)->get_icon_texture();
             break;
         case spellslot::e:
             key = "E";
+            texture = entity->get_spell(slot)->get_icon_texture();
             break;
         case spellslot::r:
             key = "R";
+            texture = entity->get_spell(slot)->get_icon_texture();
             break;
         default:
             key = "?";
+            texture = entity->get_passive_icon_texture();
             break;
         }
         auto model = entity->get_model();
@@ -106,20 +113,32 @@ namespace interrupt {
         auto id = std::to_string((int)entity->get_champion());
 
         if (useSmallMenu) {
-            menuMap[model + key] = tab->add_slider(model + key, displayName + " | " + key, defaultValue, 0, 3, true);
+            if (boolMenuMinImportance < 0) {
+                menuMap[model + key] = tab->add_slider(model + key, displayName + " | " + key, defaultValue, 0, 3, true);
+            }
+            else {
+                menuMap[model + key] = tab->add_checkbox(model + key, displayName + " | " + key, defaultValue>=boolMenuMinImportance, true);
+                menuMap[model + key]->set_texture(texture);
+            }
         }
         else {
             auto t = tab->add_tab(model, "[" + displayName + "]");
             t->set_texture(entity->get_square_icon_portrait());
 
-
-            menuMap[model + key] = t->add_slider(model + key, "[" + key + "] - " + spellName, defaultValue, 0, 3, true);
+            if (boolMenuMinImportance < 0) {
+                menuMap[model + key] = t->add_slider(model + key, "[" + key + "] - " + spellName, defaultValue, 0, 3, true);
+            }
+            else {
+                menuMap[model + key] = tab->add_checkbox(model + key, "[" + key + "] - " + spellName, defaultValue >= boolMenuMinImportance, true);
+                menuMap[model + key]->set_texture(texture);
+            }
         }
     }
 
-    void InitializeCancelMenu(TreeTab* tab,bool smallMode, bool debugUseAllies)
+    void InitializeCancelMenu(TreeTab* tab,bool smallMode, int boolMode, bool debugUseAllies)
     {
         useSmallMenu = smallMode;
+        boolMenuMinImportance = boolMode;
         std::vector<game_object_script> enemyList;
         if (debugUseAllies) {
             enemyList = entitylist->get_ally_heroes();
@@ -298,7 +317,11 @@ namespace interrupt {
                 break;
             }
         }
-        tab->add_separator("sep1", "Change Spell Importance here");
+        if(boolMode < 0) 
+            tab->add_separator("sep1", "Change Spell Importance here");
+        tab->add_separator("sep2", "Made by Flofian");
+        // Credits are appreciated, but i dont care if you remove this line
+        
     }
     int getCastingImportance(game_object_script target)
     {
@@ -334,8 +357,12 @@ namespace interrupt {
         auto entity = menuMap.find(target->get_model() + key);
         if (entity == menuMap.end())
             return 0;
-
-        return entity->second->get_int();
+        if (boolMenuMinImportance == -1) {
+            return entity->second->get_int();
+        }
+        else {
+            return entity->second->get_bool();
+        }
     }
 
     interruptableSpell getInterruptable(game_object_script target) {
@@ -385,7 +412,12 @@ namespace interrupt {
 
         auto entity = menuMap.find(target->get_model() + key);
         if (entity == menuMap.end()) return output;
-        output.dangerLevel = entity->second->get_int();
+        if (boolMenuMinImportance == -1) {
+            output.dangerLevel = entity->second->get_int();
+        }
+        else {
+            output.dangerLevel = entity->second->get_bool();
+        }
         auto spellListIter = channelTime.find(target->get_model() + key);
         if (spellListIter == channelTime.end()) return output;
         
