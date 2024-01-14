@@ -2,7 +2,7 @@
 #include "NamiExample.h"
 #include "DebugUtil.h"
 
-/*
+
 PLUGIN_NAME("Example Nami");
 PLUGIN_TYPE(plugin_type::champion);
 SUPPORTED_CHAMPIONS( champion_id::Nami);
@@ -34,7 +34,8 @@ PLUGIN_API void on_sdk_unload()
         break;
     }
 }
-*/
+
+/*
 PLUGIN_NAME("Interrupt Util");
 PLUGIN_TYPE(plugin_type::misc);
 
@@ -51,3 +52,4 @@ PLUGIN_API void on_sdk_unload()
 {
     util::unload();
 }
+*/

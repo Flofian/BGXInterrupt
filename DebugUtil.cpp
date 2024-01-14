@@ -26,7 +26,7 @@ namespace util {
 		event_handler<events::on_draw>::add_callback(on_draw);
 	}
 	void unload() {
-
+		menu->delete_tab(mainMenuTab);
 		event_handler<events::on_draw>::remove_handler(on_draw);
 	}
 }

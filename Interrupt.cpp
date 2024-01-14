@@ -2,6 +2,7 @@
 #include "Interrupt.h"
 namespace interrupt {
     std::map<std::string, TreeEntry*> menuMap;
+    bool useSmallMenu = false;
     auto rbuffhashes = { buff_hash("LucianR"), buff_hash("SamiraR"), buff_hash("RyzeRChannel"), buff_hash("Gate"), buff_hash("warwickrsound") };  // I hate this, also buff times are wrong, maybe need to use onProcessSpellCast
     std::map<std::string, internalSpellData> channelTime = { // I cant get every Spell via spelldata->channeltime
         {"AkshanR", internalSpellData(0.5,2.5,2.5,0)},    // I will not do the calculations to find out how many he needs
@@ -82,47 +83,43 @@ namespace interrupt {
     void InitiateSlot(TreeTab* tab, game_object_script entity, spellslot slot, std::string name, std::string spellName, int defaultValue)
     {
         std::string key;
-        void* texture;
         switch (slot)
         {
         case spellslot::q:
             key = "Q";
-            texture = entity->get_spell(slot)->get_icon_texture();
             break;
         case spellslot::w:
             key = "W";
-            texture = entity->get_spell(slot)->get_icon_texture();
             break;
         case spellslot::e:
             key = "E";
-            texture = entity->get_spell(slot)->get_icon_texture();
             break;
         case spellslot::r:
             key = "R";
-            texture = entity->get_spell(slot)->get_icon_texture();
             break;
         default:
             key = "?";
-            texture = entity->get_passive_icon_texture();
             break;
         }
         auto model = entity->get_model();
         auto displayName = getDisplayName(entity);
         auto id = std::to_string((int)entity->get_champion());
 
-        auto t = tab->add_tab(model, "[" + displayName + "]");
-        t->set_texture(entity->get_square_icon_portrait());
+        if (useSmallMenu) {
+            menuMap[model + key] = tab->add_slider(model + key, displayName + " | " + key, defaultValue, 0, 3, true);
+        }
+        else {
+            auto t = tab->add_tab(model, "[" + displayName + "]");
+            t->set_texture(entity->get_square_icon_portrait());
 
 
-        menuMap[model + key] = t->add_slider(model + key, "[" + key + "] - " + spellName, defaultValue, 0, 3, true);
-        if (texture != nullptr)
-        {
-            menuMap[model + key]->set_texture(texture);
+            menuMap[model + key] = t->add_slider(model + key, "[" + key + "] - " + spellName, defaultValue, 0, 3, true);
         }
     }
 
-    void InitializeCancelMenu(TreeTab* tab, bool debugUseAllies)
+    void InitializeCancelMenu(TreeTab* tab,bool smallMode, bool debugUseAllies)
     {
+        useSmallMenu = smallMode;
         std::vector<game_object_script> enemyList;
         if (debugUseAllies) {
             enemyList = entitylist->get_ally_heroes();
@@ -310,7 +307,7 @@ namespace interrupt {
             return 0;
         auto slot = active->get_spellslot();
 
-        std::string key;
+        std::string key = "?";
 
         switch (slot)
         {
@@ -324,10 +321,12 @@ namespace interrupt {
             key = "E";
             break;
         case spellslot::r:
-            key = "R";
+            // I exclude Warwick here, dont want to "interrupt" his jump, only the channel
+            // So i ignore his R Active Spell, but check for the effect below
+            if (target->get_champion() != champion_id::Warwick)
+                key = "R";
             break;
         default:
-            key = "?";
             break;
         }
         if (target->has_buff(rbuffhashes)) key = "R";
@@ -345,7 +344,7 @@ namespace interrupt {
         auto active = target->get_active_spell();
         if (!active && !target->has_buff(rbuffhashes))
             return output;
-        std::string key;
+        std::string key = "?";
         float realStartTime = -1;
         // This split is needed since SamiraR, LucianR etc are not in activeSpell, they are only a buff
         if (active) {   
@@ -369,7 +368,6 @@ namespace interrupt {
                     key = "R";
                 break;
             default:
-                key = "?";
                 console->print("Spellslot %i", (int) slot);
                 break;
             }

@@ -1,4 +1,6 @@
 #include "plugin_sdk/plugin_sdk.hpp"
+// Please check out the example at https://github.com/Flofian/BGXInterrupt 
+
 namespace interrupt {
     struct interruptableSpell {
         float minRemainingTime;
@@ -29,9 +31,52 @@ namespace interrupt {
             expectedTime = e;
             castTime = c;
         }
-    };  // Code duplication is ugly, i know, but i think that look better
+    };
+
+
+    // Call this to get the "prettier" version of the champions name, since the internal names are slightly different
 	std::string getDisplayName(game_object_script target);
-	void InitializeCancelMenu(TreeTab* tab, bool debugUseAllies=false);
+
+    /* 
+    Call this with the tab which is meant to contain the Spell Importance sliders
+    Small mode reduces the Menu size
+    Normal Mode Example:
+        Fiddlesticks
+            -> W - Bountiful Harvest
+            -> R - Crowstorm
+    Small Mode Example:
+        Fiddlesticks | W
+        Fiddlesticks | R
+    The debug option is only used to find problems with my code, do not use
+    */
+	void InitializeCancelMenu(TreeTab* tab, bool smallMode=false, bool debugUseAllies=false);
+
+
+    /*
+    This function is similar to my old DB / Omori DB
+    If the target has an active spell thats in the Menu, this will return their Importance Value, else it will return 0
+    Use this in your on_update method to check if they have a certain Importance, then cast your spell on them
+    Warning: This contains Spells during which the Target can move, so make sure to call prediction as well
+    */
 	int getCastingImportance(game_object_script target);
+
+    /*
+    This function returns a struct containing the Casting Importance, and the following cast time values:
+    maxRemainingTime:       How long the target could theoretically continue charging the spell
+    minRemainingTime:       How long the target has to continue casting before he can move again
+    expectedRemainingTime:  How long the target will probably continue casting
+    If you want to "guarantee" a hit, make sure the minRemainingTime is greater than your spells delay/time to hit  (Check out the Nami Example)
+    Examples:
+        Pyke Q:
+            max = 3         He can hold it for up to 3 seconds
+            min = 0         He can release it whenever he wants
+            expected = 1    He needs 1 second to charge to max out the q range
+        Caitlyn R:
+            max = min = expected = 1.375, since she charges for 1s after 0.375s cast time
+        Velkoz R:
+            max = 2.8       He can cast for 2.8s
+            min = 1         He needs to wait 1s until he can recast it, he cant move until then
+            expected = 2.8  Most of the time, spells like this get cast for the full duration
+    */
     interruptableSpell getInterruptable(game_object_script target);
 }
