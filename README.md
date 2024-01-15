@@ -81,3 +81,10 @@ std::string InterruptDB::getCastingImportance(target);
 ---
 ### `InterruptDB::InitializeCancelMenu(interruptableSpellsTab, true)`
 ![Screenshot (15)](https://github.com/Flofian/BGXInterrupt/assets/56082272/ca8ce117-dea8-459d-9fb5-5627dec8dc89)
+
+## TODO
+- Change structure to make it a class, allowing multiple menus (for example 1 boolMenu for Q, 1 boolMenu for R)
+- Allow boolMenu to include multiple Spells (for example on Nami: only use R to interrupt Katarina R, and dont use Q)
+- (Maybe) Figure out how many R shots Jhin has left to fix expectedRemainingTime on him
+- (Maybe) Figure out the expectedRemainingTime on more spells based on allies/enemies nearby (example: Janna will stop using R when all allies nearby are full hp)
+- (Maybe) Figure out a way to fix buffs not being accurate (example Lucian R)
