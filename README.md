@@ -8,7 +8,7 @@ There are fully working examples at [Flofian - BGXInterruptExamples](https://git
 
 Include "Interrupt.h" in your champion script
 ```cpp
-#include "SpellDB.h"
+#include "Interrupt.h"
 ```
 
 #### **Initializing the menu**
