@@ -1,3 +1,4 @@
+This is based on [Omori's BlåhajDB](https://github.com/BGXBreaker/BGXAddons)
 # BGX InterruptDB by Flofian
 ## What does it do?
 This can be used to easily figure out if the enemy is casting a spell I can cancel, and it gives the user control over each spell individually
@@ -20,9 +21,9 @@ void InterruptDB::InitializeCancelMenu(tab, smallMenu, boolMenuDanger, debugUseA
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `tab` | `TreeTab*` | **Required**. Pre-Created Tab |
-| `smallMenu` | `bool` | **NOT Required**. This makes the menu less indented |
-| `boolMenuDanger` | `int` | **NOT Required**. Use this to change the menu from sliders to checkboxes (see below) <br> Set this to the minimal danger level you want to have enabled by default |
-| `debugUseAllies` | `bool` | **NOT Required**. Only used for debugging, shows menu for allies instead of enemies |
+| `smallMenu` | `bool` | **Optional**. This makes the menu less indented |
+| `boolMenuDanger` | `int` | **Optional**. Use this to change the menu from sliders to checkboxes (see below) <br> Set this to the minimal danger level you want to have enabled by default |
+| `debugUseAllies` | `bool` | **Optional**. Only used for debugging, shows menu for allies instead of enemies |
 
 #### **Getting cast importance of the enemy**
 ```cpp
@@ -31,7 +32,7 @@ int InterruptDB::getCastingImportance(target);
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `target` | `game_object_script` | **Required**. Target to check |
-| `return` | `int` | **Returned Value** <br> If using sliders: returns slider value <br> If using Checkboxes: return 0 or 1 |
+| `return` | `int` | **Returned Value** <br> If using sliders: returns slider value <br> If using Checkboxes: returns 0 or 1 |
 #### **Getting cast data of the enemy**
 ```cpp
 interruptableSpell InterruptDB::getInterruptable(target);
@@ -63,7 +64,7 @@ std::string InterruptDB::getCastingImportance(target);
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `target` | `game_object_script` | **Required**. Target to check |
-| `return` | `std::string` | **Returned Value** <br> The real name of the champion, since Wukong is internally called MonkeyKing |
+| `return` | `std::string` | **Returned Value** <br> The real name of the champion, since for example Wukong is internally called MonkeyKing |
 
 ## Menu Showcase
 ### `InterruptDB::InitializeCancelMenu(interruptSettingsTab, true, 2)`
